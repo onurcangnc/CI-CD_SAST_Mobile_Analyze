@@ -8,7 +8,7 @@ The workflow defined in `.github/workflows/sast.yml` runs on every push or pull 
 1. Install required tools (JADX and Python packages). The workflow unsets common
    proxy variables before installing Python dependencies to avoid pip failures.
    It downloads JADX with `wget -L` to follow redirects and extracts it with
-   `unzip -o`. The extracted folder is detected using `ls` so the build works
+   `unzip -o`. The extracted folder is detected using `find` so the build works
    even if the archive structure changes.
 2. Decompile the APK to `build/decompiled`.
 3. Scan the decompiled source for secrets using `detect-secrets` and generate a baseline.
