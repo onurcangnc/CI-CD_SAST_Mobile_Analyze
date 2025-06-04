@@ -7,7 +7,9 @@ The workflow defined in `.github/workflows/sast.yml` runs on every push or pull 
 
 1. Install required tools (JADX and Python packages). The workflow unsets common
    proxy variables before installing Python dependencies to avoid pip failures,
-   and unzips the JADX archive with `-o` to prevent interactive prompts.
+   and unzips the JADX archive with `-o` to prevent interactive prompts. The
+   extracted directory is detected automatically so the build works even if the
+   archive structure changes.
 2. Decompile the APK to `build/decompiled`.
 3. Scan the decompiled source for secrets using `detect-secrets` and generate a baseline.
 4. Run `scripts/security_check.py` – analyzer that searches the decompiled source for evidence of root detection, emulator checks (including Genymotion), debugger checks, Frida detection and SSL pinning. It writes JSON and HTML reports and uses curated wordlists from several open-source projects. Patterns are precompiled and require at least two indicators for each category to reduce false positives.

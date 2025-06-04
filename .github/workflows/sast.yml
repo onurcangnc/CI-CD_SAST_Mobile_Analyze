@@ -18,10 +18,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-11-jre-headless wget unzip python3 python3-pip
-          wget -q https://github.com/skylot/jadx/releases/download/v1.4.7/jadx-1.4.7.zip
+          wget -q https://github.com/skylot/jadx/releases/download/v1.4.7/jadx-1.4.7.zip -O jadx.zip
           # use -o to avoid prompts when README already exists
-          unzip -oq jadx-1.4.7.zip
-          sudo mv jadx-1.4.7/bin/jadx /usr/local/bin/
+          unzip -oq jadx.zip
+          JADX_DIR=$(find . -maxdepth 1 -type d -name 'jadx*' | head -n 1)
+          sudo mv "$JADX_DIR/bin/jadx" /usr/local/bin/
           # Unset proxy variables to avoid pip 403 errors in some environments
           unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
           pip3 install detect-secrets
