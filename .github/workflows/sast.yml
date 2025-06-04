@@ -36,11 +36,12 @@ jobs:
       - name: Scan for secrets
         run: |
           detect-secrets scan --all-files build/decompiled > build/detect-secrets-baseline.json
+          python3 scripts/baseline_to_html.py build/detect-secrets-baseline.json build/detect-secrets-report.html
           cat build/detect-secrets-baseline.json
 
       - name: Analyze security features
         run: |
-          python3 scripts/security_check.py build/decompiled
+          python3 scripts/security_check.py build/decompiled --json build/security_features.json --html build/security_report.html
 
       - name: Archive results
         uses: actions/upload-artifact@v4

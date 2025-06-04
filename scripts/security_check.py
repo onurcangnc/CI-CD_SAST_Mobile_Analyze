@@ -3,6 +3,7 @@ import sys
 import os
 import json
 import re
+from argparse import ArgumentParser
 
 FEATURE_PATTERNS = {
     # strings commonly used when checking for root status
@@ -14,26 +15,29 @@ FEATURE_PATTERNS = {
         r"/system/app/Magisk\.apk", r"com\.noshufou\.android\.su",
         r"com\.koushikdutta\.superuser", r"eu\.chainfire\.supersu",
         r"kinguser", r"kingroot", r"magiskmanager", r"rootaccess",
+        r"\bsu\b", r"\broot\b", r"isjailbrokenorrooted",
     ],
     # attempts to determine if the app is running on an emulator
     "emulator_detection": [
         r"generic", r"goldfish", r"ranchu", r"google_sdk", r"emulator",
         r"genymotion", r"bluestacks", r"nox", r"vbox", r"qemu", r"sdk_gphone",
         r"vbox86", r"virtualbox", r"memu", r"ldplayer", r"android sdk built for",
-        r"x86", r"ro\.kernel\.qemu", r"droid4x",
+        r"x86", r"ro\.kernel\.qemu", r"droid4x", r"issimulator",
     ],
     # checks whether a debugger is attached
     "debug_checks": [
         r"isdebuggerconnected", r"Debug\.isDebuggerConnected", r"adb",
         r"tracerpid", r"android\.os\.Debug", r"debugger",
         r"Debug\.waitForDebugger", r"waitfordebugger", r"debuggerd",
-        r"gdbserver", r"lldb", r"android\.ddm", r"ptrace",
+        r"gdbserver", r"lldb", r"android\.ddm", r"ptrace", r"getppid",
+        r"isdebuggermode",
     ],
     # attempts to detect Frida instrumentation
     "frida_detection": [
         r"frida", r"frida-server", r"libfrida", r"fridaserver", r"gadget",
         r"gum-js-loop", r"re\.frida\.server", r"frida-gadget",
         r"libfrida-gadget", r"frida_agent", r"frida-java", r"frida-hooks",
+        r"isfridarunning",
     ],
     # certificate pinning or other SSL protection implementations
     "ssl_pinning": [
@@ -71,9 +75,38 @@ def scan_features(directory):
                     continue
     return features
 
+def write_html(features):
+    """Return a simple HTML representation of feature results."""
+    rows = "\n".join(
+        f"<tr><td>{k}</td><td>{'Yes' if v else 'No'}</td></tr>"
+        for k, v in features.items()
+    )
+    return (
+        "<html><head><meta charset='UTF-8'>"
+        "<title>Security Feature Report</title></head><body>"
+        "<h1>Security Feature Detection</h1>"
+        "<table border='1'><tr><th>Feature</th><th>Detected</th></tr>"
+        f"{rows}</table></body></html>"
+    )
+
+
+def main():
+    parser = ArgumentParser(description="Scan source for common security features")
+    parser.add_argument("source_dir")
+    parser.add_argument("--json", default="build/security_features.json")
+    parser.add_argument("--html", default="build/security_report.html")
+    args = parser.parse_args()
+
+    features = scan_features(args.source_dir)
+
+    os.makedirs(os.path.dirname(args.json), exist_ok=True)
+    with open(args.json, "w") as jf:
+        json.dump(features, jf, indent=2)
+    with open(args.html, "w") as hf:
+        hf.write(write_html(features))
+
+    print(json.dumps(features, indent=2))
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: security_check.py <source_dir>")
-        sys.exit(1)
-    result = scan_features(sys.argv[1])
-    print(json.dumps(result, indent=2))
+    main()
