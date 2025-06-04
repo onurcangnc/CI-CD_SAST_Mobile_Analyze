@@ -1,0 +1,47 @@
+name: Mobile SAST
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    env:
+      APK_PATH: app.apk
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jre-headless wget unzip python3 python3-pip
+          wget -q https://github.com/skylot/jadx/releases/download/v1.4.7/jadx-1.4.7.zip
+          unzip -q jadx-1.4.7.zip
+          sudo mv jadx-1.4.7/bin/jadx /usr/local/bin/
+          pip3 install detect-secrets
+
+      - name: Decompile APK
+        run: |
+          if [ ! -f "$APK_PATH" ]; then
+            echo "APK not found: $APK_PATH" && exit 1
+          fi
+          mkdir -p build/decompiled
+          jadx -d build/decompiled "$APK_PATH"
+
+      - name: Scan for secrets
+        run: |
+          detect-secrets scan build/decompiled > build/detect-secrets-report.json
+          cat build/detect-secrets-report.json
+
+      - name: Analyze security features
+        run: |
+          python3 scripts/security_check.py build/decompiled
+
+      - name: Archive results
+        uses: actions/upload-artifact@v3
+        with:
+          name: sast-results
+          path: build/
