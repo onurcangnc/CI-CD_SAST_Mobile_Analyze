@@ -1,6 +1,6 @@
 # CI-CD_SAST_Mobile_Analyze
 
-This repository provides a basic CI/CD pipeline to perform static analysis on mobile applications. It uses **JADX** to decompile an APK, scans the source for secrets with **detect-secrets**, and searches for common security protections such as root, emulator (including Genymotion) or debugger checks, Frida detection, and SSL pinning. The scanning script compiles patterns ahead of time for better efficiency.
+This repository provides a basic CI/CD pipeline to perform static analysis on mobile applications. It uses **JADX** to decompile an APK, scans the source for secrets with **detect-secrets**, and searches for common security protections such as root, emulator (including Genymotion) or debugger checks, Frida detection, and SSL pinning. The scanner relies on an expanded set of keywords (e.g. `supersu`, `busybox`, `bluestacks`, `fridaserver`, `trustkit`) compiled ahead of time for better efficiency.
 
 ## GitHub Actions Workflow
 The workflow defined in `.github/workflows/sast.yml` runs on every push or pull request to the `main` branch. It expects an APK named `app.apk` in the repository and performs the following steps:
