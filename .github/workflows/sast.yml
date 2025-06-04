@@ -21,6 +21,8 @@ jobs:
           wget -q https://github.com/skylot/jadx/releases/download/v1.4.7/jadx-1.4.7.zip
           unzip -q jadx-1.4.7.zip
           sudo mv jadx-1.4.7/bin/jadx /usr/local/bin/
+          # Unset proxy variables to avoid pip 403 errors in some environments
+          unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
           pip3 install detect-secrets
 
       - name: Decompile APK
