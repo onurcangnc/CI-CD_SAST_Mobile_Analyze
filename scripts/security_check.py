@@ -13,6 +13,7 @@ FEATURE_PATTERNS = {
     # attempts to determine if the app is running on an emulator
     "emulator_detection": [
         r"generic", r"goldfish", r"ranchu", r"google_sdk", r"emulator",
+        r"genymotion",
     ],
     # checks whether a debugger is attached
     "debug_checks": [r"isdebuggerconnected", r"Debug\.isDebuggerConnected"],
@@ -22,9 +23,15 @@ FEATURE_PATTERNS = {
     "ssl_pinning": [r"certificatepinner", r"pinningtrustmanager", r"okhttp3"],
 }
 
+# pre-compile regex patterns for efficiency
+COMPILED_PATTERNS = {
+    feature: [re.compile(pat, re.I) for pat in pats]
+    for feature, pats in FEATURE_PATTERNS.items()
+}
+
 def _matches_patterns(content: str, patterns) -> bool:
     """Return True if at least two patterns match to reduce false positives."""
-    matches = sum(1 for pat in patterns if re.search(pat, content, re.I))
+    matches = sum(1 for pat in patterns if pat.search(content))
     return matches >= 2
 
 
@@ -36,7 +43,7 @@ def scan_features(directory):
                 try:
                     with open(os.path.join(root, f), 'r', errors='ignore') as fh:
                         content = fh.read()
-                        for key, patterns in FEATURE_PATTERNS.items():
+                        for key, patterns in COMPILED_PATTERNS.items():
                             if not features[key] and _matches_patterns(content, patterns):
                                 features[key] = True
                 except Exception:
