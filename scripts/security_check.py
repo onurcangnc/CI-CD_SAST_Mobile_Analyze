@@ -15,7 +15,10 @@ FEATURE_PATTERNS = {
         r"/system/app/Magisk\.apk", r"com\.noshufou\.android\.su",
         r"com\.koushikdutta\.superuser", r"eu\.chainfire\.supersu",
         r"kinguser", r"kingroot", r"magiskmanager", r"rootaccess",
-        r"\bsu\b", r"\broot\b", r"isjailbrokenorrooted",
+        r"\bsu\b", r"\broot\b", r"isjailbrokenorrooted", r"isjailbroken",
+        r"checkforbinary", r"checkforrootfiles", r"checkformagisk",
+        r"checkselinuxpolicy", r"checkfordangerousprops", r"checkforrwpaths",
+        r"isdevicerooted",
     ],
     # attempts to determine if the app is running on an emulator
     "emulator_detection": [
@@ -23,21 +26,26 @@ FEATURE_PATTERNS = {
         r"genymotion", r"bluestacks", r"nox", r"vbox", r"qemu", r"sdk_gphone",
         r"vbox86", r"virtualbox", r"memu", r"ldplayer", r"android sdk built for",
         r"x86", r"ro\.kernel\.qemu", r"droid4x", r"issimulator",
-    ],
+        r"isemulator", r"checkforemulator", r"isrunningonemulator", r"detectemulator",
+        r"ro\.build\.fingerprint", r"ro\.product\.model", r"ro\.hardware",
+   ],
     # checks whether a debugger is attached
     "debug_checks": [
         r"isdebuggerconnected", r"Debug\.isDebuggerConnected", r"adb",
         r"tracerpid", r"android\.os\.Debug", r"debugger",
         r"Debug\.waitForDebugger", r"waitfordebugger", r"debuggerd",
         r"gdbserver", r"lldb", r"android\.ddm", r"ptrace", r"getppid",
-        r"isdebuggermode",
+        r"isdebuggermode", r"isdebuggerpresent", r"checkdebuggerattached",
+        r"detectdebugger", r"checktracerpid",
     ],
     # attempts to detect Frida instrumentation
     "frida_detection": [
         r"frida", r"frida-server", r"libfrida", r"fridaserver", r"gadget",
         r"gum-js-loop", r"re\.frida\.server", r"frida-gadget",
         r"libfrida-gadget", r"frida_agent", r"frida-java", r"frida-hooks",
-        r"isfridarunning",
+        r"isfridarunning", r"isfridaprocessrunning", r"isfridalibrariesloaded",
+        r"isfridafilesdetected", r"isfridahooksdetected", r"checksecurity",
+        r"27042",
     ],
     # certificate pinning or other SSL protection implementations
     "ssl_pinning": [
