@@ -21,7 +21,7 @@ jobs:
           wget -q -L https://github.com/skylot/jadx/releases/download/v1.4.7/jadx-1.4.7.zip -O jadx.zip
           # use -o to avoid prompts when README already exists
           unzip -oq jadx.zip
-          JADX_DIR=$(find . -maxdepth 1 -type d -name 'jadx*' | head -n 1)
+          JADX_DIR=$(ls -d jadx* 2>/dev/null | head -n 1)
           sudo mv "$JADX_DIR/bin/jadx" /usr/local/bin/
           # Unset proxy variables to avoid pip 403 errors in some environments
           unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY

@@ -6,10 +6,10 @@ This repository provides a basic CI/CD pipeline to perform static analysis on mo
 The workflow defined in `.github/workflows/sast.yml` runs on every push or pull request to the `main` branch. It expects an APK named `app.apk` in the repository and performs the following steps:
 
 1. Install required tools (JADX and Python packages). The workflow unsets common
-   proxy variables before installing Python dependencies to avoid pip failures,
-   downloads JADX with `wget -L` to follow redirects, and unzips the archive with
-   `-o` to prevent interactive prompts. The extracted directory is detected
-   automatically so the build works even if the archive structure changes.
+   proxy variables before installing Python dependencies to avoid pip failures.
+   It downloads JADX with `wget -L` to follow redirects and extracts it with
+   `unzip -o`. The extracted folder is detected using `ls` so the build works
+   even if the archive structure changes.
 2. Decompile the APK to `build/decompiled`.
 3. Scan the decompiled source for secrets using `detect-secrets` and generate a baseline.
 4. Run `scripts/security_check.py` – analyzer that searches the decompiled source for evidence of root detection, emulator checks (including Genymotion), debugger checks, Frida detection and SSL pinning. It writes JSON and HTML reports and uses curated wordlists from several open-source projects. Patterns are precompiled and require at least two indicators for each category to reduce false positives.
