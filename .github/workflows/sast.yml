@@ -1,0 +1,53 @@
+name: Mobile SAST
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    env:
+      APK_PATH: app.apk
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jre-headless wget unzip python3 python3-pip
+          wget -q -L https://github.com/skylot/jadx/releases/download/v1.4.7/jadx-1.4.7.zip -O jadx.zip
+          # use -o to avoid prompts when README already exists
+          unzip -oq jadx.zip
+          # Locate the extracted jadx directory reliably
+          JADX_DIR=$(find . -maxdepth 1 -type d -name 'jadx*' | head -n 1)
+          sudo mv "$JADX_DIR/bin/jadx" /usr/local/bin/
+          # Unset proxy variables to avoid pip 403 errors in some environments
+          unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+          pip3 install detect-secrets
+
+      - name: Decompile APK
+        run: |
+          if [ ! -f "$APK_PATH" ]; then
+            echo "APK not found: $APK_PATH" && exit 1
+          fi
+          mkdir -p build/decompiled
+          jadx -d build/decompiled "$APK_PATH"
+
+      - name: Scan for secrets
+        run: |
+          detect-secrets scan --all-files build/decompiled > build/detect-secrets-baseline.json
+          python3 scripts/baseline_to_html.py build/detect-secrets-baseline.json build/detect-secrets-report.html
+          cat build/detect-secrets-baseline.json
+
+      - name: Analyze security features
+        run: |
+          python3 scripts/security_check.py build/decompiled --json build/security_features.json --html build/security_report.html
+
+      - name: Archive results
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-results
+          path: build/
