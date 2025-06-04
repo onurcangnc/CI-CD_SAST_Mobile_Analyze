@@ -7,12 +7,28 @@ The workflow defined in `.github/workflows/sast.yml` runs on every push or pull 
 
 1. Install required tools (JADX and Python packages).
 2. Decompile the APK to `build/decompiled`.
-3. Scan the decompiled source for secrets using `detect-secrets`.
+3. Scan the decompiled source for secrets using `detect-secrets` and generate a baseline.
 4. Run `scripts/security_check.py` to check for security features like root detection, emulator checks (Genymotion included), debugger detection, Frida detection, and SSL pinning.
 5. Uploads the results as workflow artifacts using `actions/upload-artifact@v4`.
+   The generated baseline can be found at `build/detect-secrets-baseline.json`.
 
 ## Scripts
 - `scripts/security_check.py` – analyzer that searches the decompiled source for evidence of root detection, emulator checks (including Genymotion), debugger checks, Frida detection and SSL pinning. It uses curated wordlists from several open-source projects. Patterns are precompiled and require at least two indicators for each category to reduce false positives while improving performance.
 
 ## Usage
 Add your APK to the repository as `app.apk`, commit the changes, and push. The workflow will run automatically and attach a `sast-results` artifact with the analysis reports.
+
+### Updating the secrets baseline
+`detect-secrets` works best when you maintain a baseline file. To generate a baseline locally, run:
+
+```bash
+detect-secrets scan > .secrets.baseline
+```
+
+You can then commit `.secrets.baseline` and update it with:
+
+```bash
+detect-secrets scan --baseline .secrets.baseline
+```
+
+This allows the pre-commit hook or CI pipeline to focus only on newly introduced secrets.

@@ -33,8 +33,8 @@ jobs:
 
       - name: Scan for secrets
         run: |
-          detect-secrets scan build/decompiled > build/detect-secrets-report.json
-          cat build/detect-secrets-report.json
+          detect-secrets scan --all-files build/decompiled > build/detect-secrets-baseline.json
+          cat build/detect-secrets-baseline.json
 
       - name: Analyze security features
         run: |
