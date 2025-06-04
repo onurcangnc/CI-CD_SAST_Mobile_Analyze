@@ -9,7 +9,7 @@ The workflow defined in `.github/workflows/sast.yml` runs on every push or pull 
 2. Decompile the APK to `build/decompiled`.
 3. Scan the decompiled source for secrets using `detect-secrets`.
 4. Run `scripts/security_check.py` to check for security features like root detection, debug checks, and certificate pinning.
-5. Uploads the results as workflow artifacts.
+5. Uploads the results as workflow artifacts using `actions/upload-artifact@v4`.
 
 ## Scripts
 - `scripts/security_check.py` – simple analyzer that searches the decompiled source for keywords indicating common security protections.
